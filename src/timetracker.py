@@ -4,8 +4,6 @@ import os
 import requests as requests
 from datetime import datetime
 
-print(f"Getting data with harvest ID '{os.environ.get('HARVEST_API_ID')}'...")
-
 headers = {
     'Harvest-Account-ID': os.environ.get('HARVEST_API_ID'),
     'Authorization': f'Bearer {os.environ.get("HARVEST_API_BEARER")}',
@@ -31,7 +29,7 @@ delta_hours = round(total_hours_should_have_worked - total_hours_worked, 2)
 compensation_in_days = round(delta_hours/8.4, 2)
 
 if delta_hours > 0:
-    print(f'Hours undertime: {delta_hours}')
-    print(f'Compensation in days: {compensation_in_days}')
+    print(f'Undertime: {delta_hours}h')
+    print(f'Compensation: {compensation_in_days} days')
 else:
-    print(f'Hours overtime: {abs(delta_hours)}')
+    print(f'Overtime: {abs(delta_hours)}h')
