@@ -13,7 +13,7 @@ headers = {
 data = requests.get(url='https://api.harvestapp.com/api/v2/time_entries', headers=headers)
 time_entries = json.loads(data.content).get('time_entries', [])
 
-work_hours_per_week_quota = float(os.environ.get('WORK_HOURS_PER_WEEK_QUOTA'))
+work_hours_per_week_quota = float(os.environ.get('WORK_HOURS_PER_WEEK_QUOTA', 42))
 weekly_hours_total = {}
 
 for entry in time_entries:
@@ -27,12 +27,12 @@ total_hours_average = round(total_hours_worked / len(weekly_hours_total), 2)
 total_hours_should_have_worked = len(weekly_hours_total) * work_hours_per_week_quota
 delta_hours = round(total_hours_should_have_worked - total_hours_worked, 2)
 
-compensation_in_days = round(delta_hours / 8.4, 2)
+compensation_in_days = round(delta_hours / float(os.environ.get('WORK_HOURS_PER_DAY_QUOTA', 8.4)), 2)
 
 print(f'Quota: {work_hours_per_week_quota}h / week')
 print(f'Average: {total_hours_average}h / week')
-if delta_hours > 0:
-    print(f'Undertime: {delta_hours}h')
-    print(f'Compensation: {compensation_in_days} days')
-else:
-    print(f'Overtime: {abs(delta_hours)}h')
+
+compensation_type = 'Undertime' if delta_hours > 0 else 'Overtime'
+
+print(f'{compensation_type}: {abs(delta_hours)}h')
+print(f'Compensation: {abs(compensation_in_days)} days')
