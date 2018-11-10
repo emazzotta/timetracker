@@ -9,10 +9,17 @@ from datetime import datetime
 
 
 def get_tracked_time():
+    harvest_api_account_id = os.environ.get('HARVEST_API_ID')
+    harvest_api_token = os.environ.get("HARVEST_API_BEARER")
+
+    if not harvest_api_account_id or not harvest_api_token:
+        print('You need to provide valid harvest credentials in the .env file!', file=sys.stderr)
+        exit(1)
+
     if os.environ.get('ENV', 'prod') == 'prod':
         headers = {
-            'Harvest-Account-ID': os.environ.get('HARVEST_API_ID'),
-            'Authorization': f'Bearer {os.environ.get("HARVEST_API_BEARER")}',
+            'Harvest-Account-ID': harvest_api_account_id,
+            'Authorization': f'Bearer {harvest_api_token}',
             'User-Agent': 'TimeChecker'
         }
         data = requests.get(url='https://api.harvestapp.com/api/v2/time_entries', headers=headers)

@@ -24,7 +24,10 @@ run:
 # DEVELOPMENT
 # -----------------------------------------------------------------------------
 .PHONY: bootstrap
-bootstrap: build
+bootstrap: build copy_env
+
+.PHONY: copy_env
+copy_env:
 	@cp .env.example .env
 
 .PHONY: restart
