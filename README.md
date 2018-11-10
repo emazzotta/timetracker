@@ -18,11 +18,11 @@ echo "HARVEST_API_ID=<ACCOUNT_ID>" >> .env
 ```bash
 # Set your work week hours quota
 # Default is 42 hours
-echo "WORK_HOURS_PER_WEEK_QUOTA=42" >> .env
+echo "WORK_WEEK_HOURS=42" >> .env
 
 # Set your work day hours quota
 # Default is 8.4 hours
-echo "WORK_HOURS_PER_DAY_QUOTA=8.4" >> .env
+echo "WORK_DAY_HOURS=8.4" >> .env
 ```
 
 ### Run

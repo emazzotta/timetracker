@@ -1,7 +1,8 @@
 .idea
 venv
 data
-.env*
+.env
+.env.dev
 *.iml
 nohup.out
 *.http
