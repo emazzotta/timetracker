@@ -4,43 +4,52 @@ Get your time tracking data via Harvest API.
 
 ## Getting started
 
-### Authorization
+### Prerequisites
+
+* Docker 18 or later
+
+### Bootstrap
+
+```bash
+# Get the code, cd to timetracker, setup timetracker in Docker
+git clone git@github.com:emazzotta/timetracker.git && \
+    cd timetracker && \
+    make bootstrap
+```
+
+### Configuration/Authorization
 
 * Get your personal token [here](https://id.getharvest.com/oauth2/access_tokens/new)
-* Add you token to the .env file
-```bash
-touch .env
-echo "HARVEST_API_BEARER=<TOKEN>" >> .env
-echo "HARVEST_API_ID=<ACCOUNT_ID>" >> .env
-```
-### Configuration
+* Adapt the .env file with your personal token 
 
-```bash
-# Set your work week hours quota
-# Default is 42 hours
-echo "WORK_WEEK_HOURS=42" >> .env
-
-# Set your work day hours quota
-# Default is 8.4 hours
-echo "WORK_DAY_HOURS=8.4" >> .env
-```
+|.env variable name|Use|Default|
+|---|---|---|
+|HARVEST_API_BEARER|The harvest API Token|None|
+|HARVEST_API_ID|The harvest API account ID|None|
+|WORK_WEEK_HOURS|Hours in a regular full-time week|42|
+|WORK_DAY_HOURS|Hours of a regular full-time day|8.4|
+|WORK_QUOTA_DATES|Comma separated list of "date"/"work quota"-combinations. E.g. the example reads starting from 2018-09-01 you worked 100% and from 2018-11-01 you worked 80%|2018-09-01;1,2018-11-01;0.8|
 
 ### Run
 
 ```bash
-docker-compose up -d
+make run
 ```
 
 ## Example Output
 
+### Overtime
+
 ```text
-# If you have overtime
 Quota: 42.0h / week
 Average: 43.14h / week
 Overtime: 10.22h
 Compensation: 1.22 days
+```
 
-# If you have undertime
+### Undertime
+
+```text
 Quota: 42.0h / week
 Average: 36.02h / week
 Undertime: 53.78h

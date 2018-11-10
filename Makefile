@@ -24,7 +24,7 @@ run:
 # DEVELOPMENT
 # -----------------------------------------------------------------------------
 .PHONY: bootstrap
-bootstrap:
+bootstrap: build
 	@cp .env.example .env
 
 .PHONY: restart
