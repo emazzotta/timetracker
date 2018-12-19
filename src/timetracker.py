@@ -80,8 +80,7 @@ def calculate(time_entries, work_quota_dates):
     print(f'Current quota: {work_week_hours * current_quota}h / week ({current_quota*100}%)')
     print(f'Average: {total_hours_average}h / week')
     compensation_type = 'Undertime' if delta_hours > 0 else 'Overtime'
-    print(f'{compensation_type}: {abs(delta_hours)}h')
-    print(f'Compensation: {abs(compensation_in_days)} days')
+    print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} days)')
 
 
 def check_work_quota_exists(quota_date, first_work_day_entry):
