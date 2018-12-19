@@ -32,14 +32,18 @@ def get_tracked_time():
 def parse_work_quota_dates(work_quota_dates):
     if not work_quota_dates:
         print('You must add the date you started to work and you work quota to .env!', file=sys.stderr)
-        print('Example: WORK_QUOTA_DATES="2018-09-01;70%,2019-02-01;80%"', file=sys.stderr)
+        print('Example: WORK_QUOTA_DATES="2018-09-01:70%;2019-02-01:80%"', file=sys.stderr)
         exit(1)
 
-    parsed_work_quota_dates = {
-        parse_iso_date(date_quota.split(':')[0].strip()): float(date_quota.split(':')[1].strip())
-        for date_quota
-        in work_quota_dates.strip().split(';')
-    }
+    try:
+        parsed_work_quota_dates = {
+            parse_iso_date(date_quota.split(':')[0].strip()): float(date_quota.split(':')[1].strip())
+            for date_quota
+            in work_quota_dates.strip().strip(';').split(';')
+        }
+    except Exception as e:
+        print(f'Invalid work quota format: "{work_quota_dates}"')
+        exit(1)
 
     return parsed_work_quota_dates
 
