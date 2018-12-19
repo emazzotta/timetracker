@@ -20,7 +20,7 @@ git clone git@github.com:emazzotta/timetracker.git && \
 ### Configuration/Authorization
 
 * Get your personal token [here](https://id.getharvest.com/oauth2/access_tokens/new)
-* Adapt the .env file with your personal token 
+* Adapt the `.env`-file with your personal token 
 
 |.env variable name|Use|Default|
 |---|---|---|
