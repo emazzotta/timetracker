@@ -36,9 +36,9 @@ def parse_work_quota_dates(work_quota_dates):
         exit(1)
 
     parsed_work_quota_dates = {
-        parse_iso_date(date_quota.split(';')[0]): float(date_quota.split(';')[1])
+        parse_iso_date(date_quota.split(':')[0].strip()): float(date_quota.split(':')[1].strip())
         for date_quota
-        in work_quota_dates.split(',')
+        in work_quota_dates.strip().split(';')
     }
 
     return parsed_work_quota_dates
@@ -63,8 +63,6 @@ def calculate(time_entries, work_quota_dates):
             i += 1
             current_quota_start_date = quota_change_dates[i]
             current_quota = work_quota_dates[current_quota_start_date]
-            print(f'On day {to_human_date(work_date)} changed quota to {work_quota_dates[current_quota_start_date]}.')
-            print()
 
         calendar_week = work_date.isocalendar()[1]
         week_id = f'Calendarweek[{calendar_week}].Year[{work_date.year}]'

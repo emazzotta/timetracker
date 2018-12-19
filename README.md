@@ -28,7 +28,7 @@ git clone git@github.com:emazzotta/timetracker.git && \
 |HARVEST_API_ID|The harvest API account ID|None|
 |WORK_WEEK_HOURS|Hours in a regular full-time week|42|
 |WORK_DAY_HOURS|Hours of a regular full-time day|8.4|
-|WORK_QUOTA_DATES|Comma separated list of "date"/"work quota"-combinations. E.g. the example reads starting from 2018-09-01 you worked 100% and from 2018-11-01 you worked 80%|2018-09-01;1,2018-11-01;0.8|
+|WORK_QUOTA_DATES|Semicolon separated list of "date":"work quota"-combinations. E.g. the example reads starting from 2018-09-01 you worked 100% and from 2018-11-01 you worked 80%| 2018-09-01:1; 2018-11-01:0.8 |
 
 ### Run
 
