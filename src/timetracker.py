@@ -41,11 +41,10 @@ def parse_work_quota_dates(work_quota_dates):
             for date_quota
             in work_quota_dates.strip().strip(';').split(';')
         }
-    except Exception as e:
+        return parsed_work_quota_dates
+    except TypeError:
         print(f'Invalid work quota format: "{work_quota_dates}"')
         exit(1)
-
-    return parsed_work_quota_dates
 
 
 def calculate(time_entries, work_quota_dates):
@@ -69,7 +68,8 @@ def calculate(time_entries, work_quota_dates):
             current_quota = work_quota_dates[current_quota_start_date]
 
         calendar_week = work_date.isocalendar()[1]
-        week_id = f'Calendarweek[{calendar_week}].Year[{work_date.year}]'
+        calendar_year = work_date.isocalendar()[0]
+        week_id = f'Calendarweek[{calendar_week}].Year[{calendar_year}]'
         weekly_hours_total.update({week_id: weekly_hours_total.get(week_id, 0) + entry['hours']})
         weekly_hours_delta[week_id] = work_week_hours * current_quota - weekly_hours_total.get(week_id)
 
