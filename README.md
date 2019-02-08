@@ -43,7 +43,7 @@ make run
 ```text
 Quota: 42.0h / week
 Average: 43.14h / week
-Overtime: 10.22h (1.22 days)
+Overtime: 10.22h (1.22 working days)
 ```
 
 ### Undertime
@@ -51,7 +51,7 @@ Overtime: 10.22h (1.22 days)
 ```text
 Quota: 42.0h / week
 Average: 36.02h / week
-Undertime: 53.78h (6.4 days)
+Undertime: 53.78h (6.4 working days)
 ```
 
 ## Author
