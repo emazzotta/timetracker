@@ -79,9 +79,10 @@ def calculate(time_entries, work_quota_dates):
     delta_hours = round(sum(weekly_hours_delta.values()), 2)
 
     compensation_in_days = round(delta_hours / float(os.environ.get('WORK_DAY_HOURS', 8.4)), 2)
-    print(f'Current quota: {work_week_hours * current_quota}h / week ({current_quota*100}%)')
-    print(f'Average: {total_hours_average}h / week')
-    compensation_type = 'Undertime' if delta_hours > 0 else 'Overtime'
+    print(f'⏱  Contract: {work_week_hours * current_quota}h / week ({current_quota*100}%)')
+    print(f'💰 You sold {int(round(total_hours_worked, 0))}h of your time working 🤔')
+    print(f'💻 On average you work {total_hours_average}h / week')
+    compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
 
 
