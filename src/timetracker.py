@@ -7,7 +7,7 @@ import sys
 from os.path import join
 
 import requests as requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def get_tracked_time():
@@ -24,8 +24,16 @@ def get_tracked_time():
             'Authorization': f'Bearer {harvest_api_token}',
             'User-Agent': 'TimeChecker'
         }
-        data = requests.get(url='https://api.harvestapp.com/api/v2/time_entries', headers=headers)
-        return json.loads(data.content).get('time_entries', [])
+
+        page = 1
+        data = request_time_entries(page=page, headers=headers)
+        entries = data.get('time_entries', [])
+        while int(data.get('total_pages')) > page:
+            page += 1
+            data = request_time_entries(page=page, headers=headers)
+            entries = entries + data.get('time_entries', [])
+
+        return entries
     return json.loads(open(join('..', 'data', 'time_entries.json'), 'r+').read())
 
 
@@ -47,41 +55,45 @@ def parse_work_quota_dates(work_quota_dates):
         exit(1)
 
 
+def is_business_day(day):
+    return day.isoweekday() not in [6, 7]
+
+
 def calculate(time_entries, work_quota_dates):
     i = 0
-    work_week_hours = float(os.environ.get('WORK_WEEK_HOURS', 42))
+    working_day_hours = float(os.environ.get('WORK_DAY_HOURS', 8.4))
     quota_change_dates = sorted(work_quota_dates.keys())
     current_quota_start_date = quota_change_dates[i]
     current_quota = work_quota_dates[current_quota_start_date]
 
     check_work_quota_exists(current_quota_start_date, time_entries[0])
 
-    weekly_hours_total = {}
-    weekly_hours_delta = {}
+    hours_should_work = 0
 
-    for entry in time_entries:
-        work_date = parse_iso_date(entry['spent_date'])
+    current_work_day = current_quota_start_date
+    working_days_total = 0
 
-        while i < len(quota_change_dates) - 1 and work_date >= quota_change_dates[i + 1]:
+    while current_work_day <= datetime.today():
+
+        # Check if work quota is up-to-date
+        while i < len(quota_change_dates) - 1 and current_work_day >= quota_change_dates[i + 1]:
             i += 1
             current_quota_start_date = quota_change_dates[i]
             current_quota = work_quota_dates[current_quota_start_date]
 
-        calendar_week = work_date.isocalendar()[1]
-        calendar_year = work_date.isocalendar()[0]
-        week_id = f'Calendarweek[{calendar_week}].Year[{calendar_year}]'
-        weekly_hours_total.update({week_id: weekly_hours_total.get(week_id, 0) + entry['hours']})
-        weekly_hours_delta[week_id] = work_week_hours * current_quota - weekly_hours_total.get(week_id)
+        if is_business_day(current_work_day):
+            working_days_total += 1
+            hours_should_work += working_day_hours * current_quota
 
-    total_hours_worked = sum(weekly_hours_total.values())
-    total_hours_average = round(total_hours_worked / len(weekly_hours_total), 2)
+        current_work_day += timedelta(days=1)
 
-    delta_hours = round(sum(weekly_hours_delta.values()), 2)
+    hours_should_work = round(hours_should_work, 2)
+    hours_did_work = sum([entry['hours'] for entry in time_entries])
+    delta_hours = round(hours_should_work - hours_did_work, 2)
+    compensation_in_days = round(delta_hours / working_day_hours, 2)
 
-    compensation_in_days = round(delta_hours / float(os.environ.get('WORK_DAY_HOURS', 8.4)), 2)
-    print(f'⏱  Contract: {work_week_hours * current_quota}h / week ({current_quota*100}%)')
-    print(f'💰 You sold {int(round(total_hours_worked, 0))}h of your time working 🤔')
-    print(f'💻 On average you work {total_hours_average}h / week')
+    print(f'⏱ Your current contract: {working_day_hours * 5 * current_quota}h / week ({current_quota * 100}%)')
+    print(f'💰 You sold {int(round(hours_did_work, 0))}h of your time working 🤔')
     compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
 
@@ -102,6 +114,21 @@ def to_human_date(date):
     return datetime.strftime(date, '%d.%m.%Y')
 
 
+def request_time_entries(page=1, headers=None):
+    if headers is None:
+        headers = {}
+
+    return json.loads(
+        requests.get(
+            url='https://api.harvestapp.com/api/v2/time_entries',
+            params={'page': page},
+            headers=headers
+        ).content
+    )
+
+
 if __name__ == '__main__':
-    time_entries = sorted(get_tracked_time(), key=lambda e: e['id'])
-    calculate(time_entries, parse_work_quota_dates(os.environ.get('WORK_QUOTA_DATES', None)))
+    calculate(
+        get_tracked_time(),
+        parse_work_quota_dates(os.environ.get('WORK_QUOTA_DATES', None))
+    )

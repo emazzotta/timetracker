@@ -26,7 +26,6 @@ git clone git@github.com:emazzotta/timetracker.git && \
 |---|---|---|
 |HARVEST_API_BEARER|The harvest API Token|None|
 |HARVEST_API_ID|The harvest API account ID|None|
-|WORK_WEEK_HOURS|Hours in a regular full-time week|42|
 |WORK_DAY_HOURS|Hours of a regular full-time day|8.4|
 |WORK_QUOTA_DATES|Semicolon separated list of "date":"work quota"-combinations. E.g. the example reads starting from 2018-09-01 you worked 100% and from 2018-11-01 you worked 80%| 2018-09-01:1; 2018-11-01:0.8 |
 
@@ -43,7 +42,6 @@ make run
 ```text
 ⏱ Contract: 42.0h / week (100.0%)
 💰 You sold 515h of your time working 🤔
-‍💻 On average you work 43.14h / week
 ✅ Overtime: 10.22h (1.22 working days)
 
 ```
@@ -53,7 +51,6 @@ make run
 ```text
 ⏱ Contract: 42.0h / week (100.0%)
 💰 You sold 515h of your time working 🤔
-‍💻 On average you work 36.02h / week
 🛑 Undertime: 53.78h (6.4 working days)
 ```
 
