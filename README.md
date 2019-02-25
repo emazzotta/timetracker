@@ -43,7 +43,6 @@ make run
 ⏱ Contract: 42.0h / week (100.0%)
 💰 You sold 515h of your time working 🤔
 ✅ Overtime: 10.22h (1.22 working days)
-
 ```
 
 ### Undertime
