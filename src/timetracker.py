@@ -92,7 +92,7 @@ def calculate(time_entries, work_quota_dates):
     delta_hours = round(hours_should_work - hours_did_work, 2)
     compensation_in_days = round(delta_hours / working_day_hours, 2)
 
-    print(f'⏱ Your current contract: {working_day_hours * 5 * current_quota}h / week ({current_quota * 100}%)')
+    print(f'⏱  Your current contract: {working_day_hours * 5 * current_quota}h / week ({current_quota * 100}%)')
     print(f'💰 You sold {int(round(hours_did_work, 0))}h of your time working 🤔')
     compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
