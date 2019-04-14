@@ -33,6 +33,7 @@ def get_tracked_time():
             data = request_time_entries(page=page, headers=headers)
             entries = entries + data.get('time_entries', [])
 
+        # open(join('..', 'data', 'time_entries.json'), 'w+').write(json.dumps(entries))
         return entries
     return json.loads(open(join('..', 'data', 'time_entries.json'), 'r+').read())
 
@@ -87,8 +88,15 @@ def calculate(time_entries, work_quota_dates):
 
         current_work_day += timedelta(days=1)
 
+    time_entries_until_today = [
+        time_entry
+        for time_entry
+        in time_entries
+        if parse_iso_date(time_entry['spent_date']) <= datetime.today()
+    ]
+
     hours_should_work = round(hours_should_work, 2)
-    hours_did_work = sum([entry['hours'] for entry in time_entries])
+    hours_did_work = sum([entry['hours'] for entry in time_entries_until_today])
     delta_hours = round(hours_should_work - hours_did_work, 2)
     compensation_in_days = round(delta_hours / working_day_hours, 2)
 
