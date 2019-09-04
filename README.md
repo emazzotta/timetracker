@@ -41,7 +41,7 @@ make run
 
 ```text
 ⏱ Contract: 42.0h / week (100.0%)
-💰 You sold 515h of your time working 🤔
+💰 You sold 515h of your time working at your current job 🤔
 ✅ Overtime: 10.22h (1.22 working days)
 ```
 
@@ -49,7 +49,7 @@ make run
 
 ```text
 ⏱ Contract: 42.0h / week (100.0%)
-💰 You sold 515h of your time working 🤔
+💰 You sold 515h of your time working at your current job 🤔
 🛑 Undertime: 53.78h (6.4 working days)
 ```
 
