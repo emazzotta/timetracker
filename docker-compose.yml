@@ -3,5 +3,6 @@ version: '3'
 services:
   timetracker:
     build: .
+    image: emazzotta/timetracker
     env_file:
       - .env
