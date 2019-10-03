@@ -1,19 +1,40 @@
 #!/usr/bin/python
-
+import calendar
 import json
-
 import os
 import sys
+import datetime
 from os.path import join
 
 import requests as requests
-from datetime import datetime, timedelta
+
+
+salary_day_of_month = int(os.environ.get('SALARY_DAY_OF_MONTH'))
+harvest_api_account_id = os.environ.get('HARVEST_API_ID')
+harvest_api_token = os.environ.get("HARVEST_API_BEARER")
+
+
+def add_months(source_date, months):
+    month = source_date.month - 1 + months
+    year = source_date.year + month // 12
+    month = month % 12 + 1
+    day = min(source_date.day, calendar.monthrange(year, month)[1])
+    return datetime.date(year, month, day, )
+
+
+def get_days_until_salary():
+    return (get_next_salary_date() - datetime.date.today()).days
+
+
+def get_next_salary_date():
+    current_date = datetime.date.today()
+
+    if current_date.day < salary_day_of_month:
+        return current_date + datetime.timedelta(days=(salary_day_of_month - current_date.day))
+    return add_months(current_date, 1) - datetime.timedelta(days=(current_date.day - salary_day_of_month))
 
 
 def get_tracked_time():
-    harvest_api_account_id = os.environ.get('HARVEST_API_ID')
-    harvest_api_token = os.environ.get("HARVEST_API_BEARER")
-
     if not harvest_api_account_id or not harvest_api_token:
         print('You need to provide valid harvest credentials in the .env file!', file=sys.stderr)
         exit(1)
@@ -74,7 +95,7 @@ def calculate(time_entries, work_quota_dates):
     current_work_day = current_quota_start_date
     working_days_total = 0
 
-    while current_work_day <= datetime.today():
+    while current_work_day <= datetime.datetime.today():
 
         # Check if work quota is up-to-date
         while i < len(quota_change_dates) - 1 and current_work_day >= quota_change_dates[i + 1]:
@@ -86,13 +107,13 @@ def calculate(time_entries, work_quota_dates):
             working_days_total += 1
             hours_should_work += working_day_hours * current_quota
 
-        current_work_day += timedelta(days=1)
+        current_work_day += datetime.timedelta(days=1)
 
     time_entries_until_today = [
         time_entry
         for time_entry
         in time_entries
-        if parse_iso_date(time_entry['spent_date']) <= datetime.today()
+        if parse_iso_date(time_entry['spent_date']) <= datetime.datetime.today()
     ]
 
     hours_should_work = round(hours_should_work, 2)
@@ -104,6 +125,7 @@ def calculate(time_entries, work_quota_dates):
     print(f'💰 You sold {int(round(hours_did_work, 0))}h of your time working at your current job 🤔')
     compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
+    print(f'💸 {get_days_until_salary()} days until next salary {get_next_salary_date().strftime("%d.%m.%Y")}')
 
 
 def check_work_quota_exists(quota_date, first_work_day_entry):
@@ -115,11 +137,11 @@ def check_work_quota_exists(quota_date, first_work_day_entry):
 
 
 def parse_iso_date(date):
-    return datetime.strptime(date, '%Y-%m-%d')
+    return datetime.datetime.strptime(date, '%Y-%m-%d')
 
 
 def to_human_date(date):
-    return datetime.strftime(date, '%d.%m.%Y')
+    return datetime.datetime.strftime(date, '%d.%m.%Y')
 
 
 def request_time_entries(page=1, headers=None):
