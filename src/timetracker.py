@@ -23,7 +23,19 @@ def add_months(source_date, months):
 
 
 def get_days_until_salary():
-    return (get_next_salary_date() - datetime.date.today()).days
+    salary_date = get_next_salary_date()
+    days_until_salary = (salary_date - datetime.date.today()).days
+
+    salary_date_weekday = salary_date.isoweekday()
+
+    # If salary date is on Saturday, salary is due on Friday
+    # If salary date is on Sunday, salary is due on Monday
+    if salary_date_weekday == 6:
+        days_until_salary -= 1
+    elif salary_date_weekday == 7:
+        days_until_salary += 1
+
+    return days_until_salary
 
 
 def get_next_salary_date():
