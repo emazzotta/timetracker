@@ -23,27 +23,27 @@ def add_months(source_date, months):
 
 
 def get_days_until_salary():
-    salary_date = get_next_salary_date()
-    days_until_salary = (salary_date - datetime.date.today()).days
-
-    salary_date_weekday = salary_date.isoweekday()
-
-    # If salary date is on Saturday, salary is due on Friday
-    # If salary date is on Sunday, salary is due on Monday
-    if salary_date_weekday == 6:
-        days_until_salary -= 1
-    elif salary_date_weekday == 7:
-        days_until_salary += 1
-
-    return days_until_salary
+    return (get_next_salary_date() - datetime.date.today()).days
 
 
 def get_next_salary_date():
     current_date = datetime.date.today()
 
     if current_date.day < salary_day_of_month:
-        return current_date + datetime.timedelta(days=(salary_day_of_month - current_date.day))
-    return add_months(current_date, 1) - datetime.timedelta(days=(current_date.day - salary_day_of_month))
+        salary_date = current_date + datetime.timedelta(days=(salary_day_of_month - current_date.day))
+    else:
+        salary_date = add_months(current_date, 1) - datetime.timedelta(days=(current_date.day - salary_day_of_month))
+
+    salary_date_weekday = salary_date.isoweekday()
+
+    # If salary date is on Saturday, salary is due on Friday
+    # If salary date is on Sunday, salary is due on Monday
+    if salary_date_weekday == 6:
+        return salary_date - datetime.timedelta(days=1)
+    elif salary_date_weekday == 7:
+        return salary_date + datetime.timedelta(days=1)
+    else:
+        return salary_date
 
 
 def get_tracked_time():
