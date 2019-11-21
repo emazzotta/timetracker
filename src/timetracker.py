@@ -132,12 +132,13 @@ def calculate(time_entries, work_quota_dates):
     hours_did_work = sum([entry['hours'] for entry in time_entries_until_today])
     delta_hours = round(hours_should_work - hours_did_work, 2)
     compensation_in_days = round(delta_hours / working_day_hours, 2)
+    days_until_salary = get_days_until_salary()
 
     print(f'⏱  Your current contract: {working_day_hours * 5 * current_quota}h / week ({current_quota * 100}%)')
     print(f'💰 You sold {int(round(hours_did_work, 0))}h of your time working at your current job 🤔')
     compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
-    print(f'💸 {get_days_until_salary()} days until next salary {get_next_salary_date().strftime("%d.%m.%Y")}')
+    print(f'💸 {days_until_salary} day{"s" if days_until_salary != 1 else ""} until next salary {get_next_salary_date().strftime("%d.%m.%Y")}')
 
 
 def check_work_quota_exists(quota_date, first_work_day_entry):
