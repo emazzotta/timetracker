@@ -66,6 +66,7 @@ def get_tracked_time():
             data = request_time_entries(page=page, headers=headers)
             entries = entries + data.get('time_entries', [])
 
+        # write current data into json file
         # open(join('..', 'data', 'time_entries.json'), 'w+').write(json.dumps(entries))
         return entries
     return json.loads(open(join('..', 'data', 'time_entries.json'), 'r+').read())
@@ -94,15 +95,15 @@ def is_business_day(day):
 
 
 def calculate(time_entries, work_quota_dates):
-    i = 0
+    work_quota_index = 0
     working_day_hours = float(os.environ.get('WORK_DAY_HOURS', 8.4))
     quota_change_dates = sorted(work_quota_dates.keys())
-    current_quota_start_date = quota_change_dates[i]
+    current_quota_start_date = quota_change_dates[work_quota_index]
     current_quota = work_quota_dates[current_quota_start_date]
 
-    check_work_quota_exists(current_quota_start_date, time_entries[0])
+    check_work_quota_exists(current_quota_start_date, time_entries[-1])
 
-    hours_should_work = 0
+    seconds_should_work = 0
 
     current_work_day = current_quota_start_date
     working_days_total = 0
@@ -110,14 +111,14 @@ def calculate(time_entries, work_quota_dates):
     while current_work_day <= datetime.datetime.today():
 
         # Check if work quota is up-to-date
-        while i < len(quota_change_dates) - 1 and current_work_day >= quota_change_dates[i + 1]:
-            i += 1
-            current_quota_start_date = quota_change_dates[i]
+        while work_quota_index < len(quota_change_dates) - 1 and current_work_day >= quota_change_dates[work_quota_index + 1]:
+            work_quota_index += 1
+            current_quota_start_date = quota_change_dates[work_quota_index]
             current_quota = work_quota_dates[current_quota_start_date]
 
         if is_business_day(current_work_day):
             working_days_total += 1
-            hours_should_work += working_day_hours * current_quota
+            seconds_should_work += working_day_hours * 3600 * current_quota
 
         current_work_day += datetime.timedelta(days=1)
 
@@ -128,24 +129,24 @@ def calculate(time_entries, work_quota_dates):
         if parse_iso_date(time_entry['spent_date']) <= datetime.datetime.today()
     ]
 
-    hours_should_work = round(hours_should_work, 2)
-    hours_did_work = sum([entry['hours'] for entry in time_entries_until_today])
-    delta_hours = round(hours_should_work - hours_did_work, 2)
+    seconds_did_work = sum([entry['hours'] for entry in time_entries_until_today]) * 3600
+    delta_seconds = seconds_should_work - seconds_did_work
+    delta_hours = round(delta_seconds / 3600, 2)
     compensation_in_days = round(delta_hours / working_day_hours, 2)
     days_until_salary = get_days_until_salary()
 
     print(f'⏱  Your current contract: {working_day_hours * 5 * current_quota}h / week ({current_quota * 100}%)')
-    print(f'💰 You sold {int(round(hours_did_work, 0))}h of your time working at your current job 🤔')
+    print(f'💰 You sold {int(round(seconds_did_work / 3600, 0))}h of your time working at your current job 🤔')
     compensation_type = '🛑 Undertime' if delta_hours > 0 else '✅ Overtime'
     print(f'{compensation_type}: {abs(delta_hours)}h ({abs(compensation_in_days)} working days)')
     print(f'💸 {days_until_salary} day{"s" if days_until_salary != 1 else ""} until next salary {get_next_salary_date().strftime("%d.%m.%Y")}')
 
 
-def check_work_quota_exists(quota_date, first_work_day_entry):
+def check_work_quota_exists(earliest_quota_date, first_work_day_entry):
     first_work_day = parse_iso_date(first_work_day_entry['spent_date'])
-    if first_work_day < quota_date:
+    if first_work_day < earliest_quota_date:
         print(f'You worked on the {to_human_date(first_work_day)}', file=sys.stderr)
-        print(f'But your earliest provided work quota date is: {to_human_date(quota_date)}', file=sys.stderr)
+        print(f'But your earliest provided work quota date is: {to_human_date(earliest_quota_date)}', file=sys.stderr)
         exit(1)
 
 
